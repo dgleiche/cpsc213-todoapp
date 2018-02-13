@@ -1,9 +1,17 @@
 const express = require('express')
 const sqlite3 = require('sqlite3').verbose();
+const exphbs = require('express-handlebars');
 const app = express();
 const db = new sqlite3.Database(process.env.DATABASE);
 const path = require('path');
 var bodyParser = require('body-parser');
+const tasksControllers = require('./controllers/tasks.js');
+
+// Configure the template/view engine
+app.engine('handlebars', exphbs({
+    defaultLayout: 'main',
+}));
+app.set('view engine', 'handlebars');
 
 // Use this to parse the body of post requests
 app.use(bodyParser.json())
@@ -12,16 +20,7 @@ app.use(bodyParser.json())
 app.use('/static', express.static('static'))
 
 // Our homepage---just send the index.html file
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Our API for getting chats
-app.get('/api/chats', (req, res) => {
-	getChats(req.query.latest || 0, function(rows){
-		res.send(rows);
-	});
-});
+app.get('/', tasksControllers.list);
 
 // Our API for posting new chats
 app.post('/api/chats', (req, res) => {
@@ -32,24 +31,16 @@ app.post('/api/chats', (req, res) => {
 	});
 });
 
-function getChats(latestID, cb){
-	db.all('SELECT rowid,body,date FROM chats WHERE rowid > (?)', latestID, function(err, rows){
-		cb(rows);
-	});
-}
+app.listen(config.port, () => {
+	console.log(`Running server on port ${config.port}`);
 
-
-const create_table = `
-CREATE TABLE IF NOT EXISTS chats (
-  date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  body TEXT
-)
-`;
-
-
-db.serialize(function() {
-  db.run(create_table);
-	const port = process.env.PORT;
-  app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+	db.connect()
+			.then(() => {
+				app.set('db', db);
+			})
+			.catch((error) => {
+            // Exit program if we cannot connect
+            console.log(`Error connecting to database ${error.message}`);
+            process.exit();
+        });
 });
-
