@@ -16,7 +16,10 @@ async function createTasks(db) {
       is_completed BOOLEAN DEFAULT 0
     );`;
 
-    const q1 = await db.none(createTasksQuery);
+    await db.serialize(function() {
+      db.run(createTasksQuery);
+    });
+
   } catch(e) {
     console.log("ERROR CREATING TASKS TABLE " + e);
 
@@ -26,36 +29,34 @@ async function createTasks(db) {
   return true;
 }
 
-async function getTasks(db) {
+function getTasks(db, callback) {
     let tasks = [];
     let error = null;
-    try {
-        // TODO: Fill in the query
-        const query = 'SELECT * FROM tasks;';
-        tasks = await db.any(query);
-    } catch (e) {
-        // If there was an error, make the movies an
-        // empty array and return the error.
-        tasks = [];
-        error = e;
-    }
-    return {
+
+    const query = 'SELECT * FROM tasks;';
+
+    db.all(query, function(err, rows) {
+      tasks = rows;
+      error = err;
+
+      return callback({
         tasks,
-        error,
-    };
+        error
+      });
+    });
 }
 
 async function setCompleted(db, id) {
-  try {
-    const updateTaskQuery = 'UPDATE tasks SET is_completed = $1 WHERE id = $2', [true, id]);
-    const q1 = await db.none(updateTaskQuery);
-  } catch (e) {
-    console.log("ERROR UPDATING TABLE " + e);
+    const updateTaskQuery = 'UPDATE tasks SET is_completed = (?) WHERE id = (?)';
 
-    return false;
-  }
+    await db.serialize(function() {
+      db.run(updateTaskQuery, true, id);
+    })
 
-  return true;
+    //const q1 = await db.run(updateTaskQuery, true, id, () =>{
+    //  // I am done when I'm called
+    //});
+    return true;
 }
 
 

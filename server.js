@@ -6,6 +6,7 @@ const db = new sqlite3.Database(process.env.DATABASE);
 const path = require('path');
 var bodyParser = require('body-parser');
 const tasksControllers = require('./controllers/tasks.js');
+const todoModels = require('./models/todo.js');
 
 // Configure the template/view engine
 app.engine('handlebars', exphbs({
@@ -31,16 +32,10 @@ app.post('/api/chats', (req, res) => {
 	});
 });
 
-app.listen(config.port, () => {
-	console.log(`Running server on port ${config.port}`);
+let port = process.env.PORT || 3000;
 
-	db.connect()
-			.then(() => {
-				app.set('db', db);
-			})
-			.catch((error) => {
-            // Exit program if we cannot connect
-            console.log(`Error connecting to database ${error.message}`);
-            process.exit();
-        });
+app.listen(port, () => {
+	console.log(`Running server on port ${port}`);
+	app.set('db', db);
+	todoModels.createTasks(db);
 });

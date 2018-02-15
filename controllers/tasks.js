@@ -16,9 +16,11 @@ async function list(req, res) {
         error: null,
     };
 
-    result = await todoModels.getAll(db);
+    todoModels.getTasks(db, (tasks, error) => {
+        console.log("RESULT: " + JSON.stringify(tasks));
 
-    res.render('todo-list', result);
+        res.render('todo-list', tasks);
+    });
 }
 
 module.exports = {

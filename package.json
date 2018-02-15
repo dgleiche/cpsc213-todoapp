@@ -1,7 +1,6 @@
 {
   "name": "diary",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,9 +11,19 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
+    "express-handlebars": "^3.0.0",
     "sqlite3": "^3.1.13"
   },
   "devDependencies": {
     "nodemon": "^1.14.12"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgleiche/cpsc213-todoapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dgleiche/cpsc213-todoapp/issues"
+  },
+  "homepage": "https://github.com/dgleiche/cpsc213-todoapp#readme",
+  "description": ""
 }
