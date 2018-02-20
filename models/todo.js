@@ -46,22 +46,30 @@ function getTasks(db, callback) {
     });
 }
 
-async function setCompleted(db, id) {
+function insertTask(db, taskTitle, callback) {
+  const query = 'INSERT INTO tasks (title) VALUES (?)'
+
+  db.run(query, [taskTitle], function(err) {
+    if (err) console.log(err.message);
+
+    return callback();
+  });
+}
+
+function setCompleted(db, id, callback) {
     const updateTaskQuery = 'UPDATE tasks SET is_completed = (?) WHERE id = (?)';
 
-    await db.serialize(function() {
-      db.run(updateTaskQuery, true, id);
-    })
+    db.run(updateTaskQuery, [true, id], function(err) {
+      if (err) console.log(err.message);
 
-    //const q1 = await db.run(updateTaskQuery, true, id, () =>{
-    //  // I am done when I'm called
-    //});
-    return true;
+      return callback();
+    });
 }
 
 
 module.exports = {
     createTasks,
     getTasks,
-    setCompleted,
+    insertTask,
+    setCompleted
 };

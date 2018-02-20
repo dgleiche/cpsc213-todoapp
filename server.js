@@ -15,22 +15,17 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 
 // Use this to parse the body of post requests
-app.use(bodyParser.json())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use this to server static files from the 'static' directory
-app.use('/static', express.static('static'))
+app.use('/static', express.static('static'));
 
 // Our homepage---just send the index.html file
 app.get('/', tasksControllers.list);
 
-// Our API for posting new chats
-app.post('/api/chats', (req, res) => {
-	const chatBody = req.body.body;
-	db.all('INSERT INTO chats (body) VALUES (?)', chatBody, function(err, rows){
-		// Return a 500 status if there was an error, otherwise success status
-		res.send(err ? 500 : 200);
-	});
-});
+// Our API for posting new tasks
+app.post('/', tasksControllers.insertTask);
 
 let port = process.env.PORT || 3000;
 

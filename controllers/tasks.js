@@ -17,12 +17,21 @@ async function list(req, res) {
     };
 
     todoModels.getTasks(db, (tasks, error) => {
-        console.log("RESULT: " + JSON.stringify(tasks));
-
         res.render('todo-list', tasks);
     });
 }
 
+function insertTask(req, res) {
+  const db = req.app.get('db');
+
+  const newTask = req.body.title;
+
+	todoModels.insertTask(db, newTask, () => {
+		res.redirect('/');
+	});
+}
+
 module.exports = {
-    list
+    list,
+    insertTask
 };
